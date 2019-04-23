@@ -30,9 +30,10 @@ int *discovery, *finish, *predecessor, *successor, *vertexStatus;
 
 void outputTable() {
 	int i;
-	printf("Vertex  discovery  finish  predecessor  successor  longest\n");
+	printf("Vertex  Discovery  Finish  Predecessor  Successor  Longest\n");
+	printf("------  ---------  ------  -----------  ---------  -------\n");
 	for (i = 0; i < n; i++) {
-		printf(" %3d      %3d       %3d       %3d       %3d\n", i, discovery[i],finish[i],predecessor[i], successor[i]);
+		printf(" %3d      %3d       %3d       %3d       %3d\n", i, discovery[i], finish[i], predecessor[i], successor[i]);
 	}
 	printf("\nEdge\tTail\tHead\tType\tDist\n");
 	printf("----\t----\t----\t----\t----\n");
@@ -44,7 +45,7 @@ void outputTable() {
 			case CROSS:   printf("C\t"); break;
 			case FORWARD: printf("F\t"); break;
 		}
-		printf("%d\n",edgeTab[i].dist);
+		printf("%d\n", edgeTab[i].dist);
 	}
 }
 
