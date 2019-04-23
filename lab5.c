@@ -2,6 +2,10 @@
 // Lab 5 - Depth-First Search
 // Code baselined from Dr. Weems
 
+// Compilation:
+// gcc rbb7716_lab5.c
+// ./a.out
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -41,7 +45,7 @@ void outputTable() {
   		printf("%d\t%d\t%d\t", i, edgeTab[i].tail, edgeTab[i].head);
   		switch(edgeTab[i].type) {
 			case TREE:    printf("T\t"); break;
-		//	case BACK:    printf("B\t"); break;		// Shouldn't be any back edges.
+		//	case BACK:    printf("B\t"); break;		Shouldn't be any back edges.
 			case CROSS:   printf("C\t"); break;
 			case FORWARD: printf("F\t"); break;
 		}
@@ -151,7 +155,7 @@ void DFSvisit(int u) {
 }
 
 int main () {
-	int u, i, j, k, nextDFS;
+	int u, i, j, k;
 
 	read_input_file();
 	discovery = (int*)malloc(sizeof(int) * n);
