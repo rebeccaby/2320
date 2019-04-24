@@ -4,7 +4,7 @@
 
 // Compilation:
 // gcc rbb7716_lab5.c
-// ./a.out
+// ./a.out<test.txt
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,14 +30,14 @@ struct edge {
 typedef struct edge edgeType;
 edgeType *edgeTab;
 int *firstEdge;
-int *discovery, *finish, *predecessor, *successor, *vertexStatus;
+int *discovery, *finish, *predecessor, *successor, *longest, *vertexStatus;
 
 void outputTable() {
 	int i;
 	printf("Vertex  Discovery  Finish  Predecessor  Successor  Longest\n");
 	printf("------  ---------  ------  -----------  ---------  -------\n");
 	for (i = 0; i < n; i++) {
-		printf(" %3d      %3d       %3d       %3d       %3d\n", i, discovery[i], finish[i], predecessor[i], successor[i]);
+		printf(" %3d      %3d       %3d       %3d         %3d       %3d\n", i, discovery[i], finish[i], predecessor[i], successor[i], longest[i]);
 	}
 	printf("\nEdge\tTail\tHead\tType\tDist\n");
 	printf("----\t----\t----\t----\t----\n");
@@ -118,20 +118,27 @@ void read_input_file() {
 		for (; j < e && edgeTab[j].tail == i; j++)
     		;
 	}
+
+
 	firstEdge[n] = e;
+	for (i = 0; i < n+1; i++) {
+		printf("%d\n", firstEdge[i]);
+	}
+
+	
 }
 
-int time;  /*Keeps node numbering*/
+int time;  /* Keeps node numbering */
 
 void DFSvisit(int u) {
-	int i,v;
-
-	vertexStatus[u] = GRAY;
+	int i, v;
+	// u = index of vertices' arrays
+	vertexStatus[u] = GRAY;	// change vertex color to gray
 	time++;
-	discovery[u] = time;
+	discovery[u] = time;	// vertex has been discovered
 
 	for (i = firstEdge[u]; i < firstEdge[u+1]; i++) {
-  		v = edgeTab[i].head;
+  		v = edgeTab[i].head;	// v = 
   		if (vertexStatus[v] == WHITE) {
     	edgeTab[i].type = TREE;
     	predecessor[v] = u;
@@ -162,6 +169,7 @@ int main () {
 	finish = (int*)malloc(sizeof(int) * n);
 	predecessor = (int*)malloc(sizeof(int) * n);
 	successor = (int*)malloc(sizeof(int) * n);
+	longest = (int*)malloc(sizeof(int) * n);
 	vertexStatus = (int*)malloc(sizeof(int) * n);
 	if (!discovery || !finish || !predecessor || !successor || !vertexStatus) {
 		printf("malloc failed\n");
@@ -173,6 +181,7 @@ int main () {
 		vertexStatus[u] = WHITE;
 		predecessor[u] = -1;
 		successor[u] = -1;
+		longest[u] = 0;
 	}
 
 	// Beginning the "clock".
@@ -186,7 +195,7 @@ int main () {
     }
 
     // Printing end results.
-	outputTable();
+	//outputTable();
 
 	// Exit routine.
 	free(edgeTab);
@@ -195,6 +204,7 @@ int main () {
 	free(finish);
 	free(predecessor);
 	free(successor);
+	free(longest);
 	free(vertexStatus);
 	return 0;
 }
