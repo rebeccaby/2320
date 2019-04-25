@@ -115,34 +115,46 @@ void read_input_file() {
 	j = 0;
 	for (i = 0; i < n; i++) {
 		firstEdge[i] = j;
-		for (; j < e && edgeTab[j].tail == i; j++)
+		for (; j < e && edgeTab[j].tail == i; j++) {
     		;
+    	}
 	}
-
-
 	firstEdge[n] = e;
-	for (i = 0; i < n+1; i++) {
-		printf("%d\n", firstEdge[i]);
+	for (i = 0; i < e; i++) {
+		printf("edgeTab[%d]: tail = %d, head = %d, dist = %d\n", i, edgeTab[i].tail, edgeTab[i].head, edgeTab[i].dist);
 	}
-
-	
+	printf("\n");
+	for (i = 0; i < n+1; i++) {
+		printf("firstEdge[%d] = %d\n", i, firstEdge[i]);
+	}
+	printf("\n");
 }
 
 int time;  /* Keeps node numbering */
 
+void findPath(int u) {
+	int i;
+	for (i = 0; i < e; i++) {
+		if (edgeTab[i].head == u) {
+			longest[edgeTab[i].tail] += edgeTab[i].dist;
+		}
+	}
+}
+
 void DFSvisit(int u) {
 	int i, v;
-	// u = index of vertices' arrays
-	vertexStatus[u] = GRAY;	// change vertex color to gray
+	
+	vertexStatus[u] = GRAY;
 	time++;
-	discovery[u] = time;	// vertex has been discovered
+	discovery[u] = time;
 
 	for (i = firstEdge[u]; i < firstEdge[u+1]; i++) {
-  		v = edgeTab[i].head;	// v = 
+  		v = edgeTab[i].head;
+  		
   		if (vertexStatus[v] == WHITE) {
-    	edgeTab[i].type = TREE;
-    	predecessor[v] = u;
-    	DFSvisit(v);
+    		edgeTab[i].type = TREE;
+    		predecessor[v] = u;
+    		DFSvisit(v);
 		}
   		else if (vertexStatus[v] == GRAY) {
     		edgeTab[i].type = BACK;
@@ -159,6 +171,7 @@ void DFSvisit(int u) {
 	vertexStatus[u] = BLACK;
 	time++;
 	finish[u] = time;
+	findPath(u);
 }
 
 int main () {
@@ -193,9 +206,9 @@ int main () {
     		DFSvisit(u);
     	}
     }
-
+    
     // Printing end results.
-	//outputTable();
+	outputTable();
 
 	// Exit routine.
 	free(edgeTab);
