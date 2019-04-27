@@ -18,7 +18,7 @@
 #define CROSS 2
 #define FORWARD 3
 
-int n, e;
+int n, e, time, count = 0;
 
 struct edge {
 	int tail;
@@ -30,10 +30,11 @@ struct edge {
 typedef struct edge edgeType;
 edgeType *edgeTab;
 int *firstEdge;
-int *discovery, *finish, *predecessor, *successor, *longest, *vertexStatus;
+int *discovery, *finish, *predecessor, *successor, *longest, *vertexStatus, *topological;
 
 void outputTable() {
 	int i;
+	
 	printf("Vertex  Discovery  Finish  Predecessor  Successor  Longest\n");
 	printf("------  ---------  ------  -----------  ---------  -------\n");
 	for (i = 0; i < n; i++) {
@@ -116,28 +117,25 @@ void read_input_file() {
 	for (i = 0; i < n; i++) {
 		firstEdge[i] = j;
 		for (; j < e && edgeTab[j].tail == i; j++) {
-    		;
+    		printf("edgeTab[%d].tail = %d\n", j, edgeTab[j].tail);
     	}
 	}
 	firstEdge[n] = e;
 	for (i = 0; i < e; i++) {
 		printf("edgeTab[%d]: tail = %d, head = %d, dist = %d\n", i, edgeTab[i].tail, edgeTab[i].head, edgeTab[i].dist);
-	}
-	printf("\n");
-	for (i = 0; i < n+1; i++) {
-		printf("firstEdge[%d] = %d\n", i, firstEdge[i]);
-	}
+	}/*
+	for (i = 0; i < n; i++) {
+  		printf("vertex %d has %d adjacent vertices\n", i, firstEdge[i+1]-firstEdge[i]);
+	}*/
 	printf("\n");
 }
 
-int time;  /* Keeps node numbering */
-
 void findPath(int u) {
-	int i;
+	int i, j;
 	for (i = 0; i < e; i++) {
-		if (edgeTab[i].head == u) {
-			longest[edgeTab[i].tail] += edgeTab[i].dist;
-		}
+  		if (edgeTab[i].head == u) {
+  			u = edgeTab[i].tail;
+  		}
 	}
 }
 
@@ -145,8 +143,7 @@ void DFSvisit(int u) {
 	int i, v;
 	
 	vertexStatus[u] = GRAY;
-	time++;
-	discovery[u] = time;
+	discovery[u] = ++time;
 
 	for (i = firstEdge[u]; i < firstEdge[u+1]; i++) {
   		v = edgeTab[i].head;
@@ -166,11 +163,13 @@ void DFSvisit(int u) {
     	}
   		else {
 	    	edgeTab[i].type = CROSS;
-	    }
+	    } 
 	}
+	
 	vertexStatus[u] = BLACK;
-	time++;
-	finish[u] = time;
+	finish[u] = ++time;
+	topological[count++] = u;
+	
 	findPath(u);
 }
 
@@ -184,6 +183,7 @@ int main () {
 	successor = (int*)malloc(sizeof(int) * n);
 	longest = (int*)malloc(sizeof(int) * n);
 	vertexStatus = (int*)malloc(sizeof(int) * n);
+	topological = (int*)malloc(sizeof(int) * n);
 	if (!discovery || !finish || !predecessor || !successor || !vertexStatus) {
 		printf("malloc failed\n");
 		exit(0);
@@ -206,7 +206,11 @@ int main () {
     		DFSvisit(u);
     	}
     }
-    
+    /*
+    for (u = 0; u < n; u++) {
+    	printf("%d\n", topological[u]);
+    }
+    */
     // Printing end results.
 	outputTable();
 
@@ -219,6 +223,7 @@ int main () {
 	free(successor);
 	free(longest);
 	free(vertexStatus);
+	free(topological);
 	return 0;
 }
 
