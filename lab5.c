@@ -4,7 +4,7 @@
 
 // Compilation:
 // gcc rbb7716_lab5.c
-// ./a.out<test.txt
+// ./a.out<file_name.txt
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,6 +35,7 @@ int *discovery, *finish, *predecessor, *successor, *longest, *vertexStatus, *top
 void outputTable() {
 	int i, j, length;
 	
+	// Printing all data tables.
 	printf("Vertex  Discovery  Finish  Predecessor  Successor  Longest\n");
 	printf("------  ---------  ------  -----------  ---------  -------\n");
 	for (i = 0; i < n; i++) {
@@ -46,12 +47,13 @@ void outputTable() {
 		printf("%d\t%d\t%d\t", i, edgeTab[i].tail, edgeTab[i].head);
 		switch(edgeTab[i].type) {
 			case TREE:    printf("T\t"); break;
-		//	case BACK:    printf("B\t"); break;		Shouldn't be any back edges.
 			case CROSS:   printf("C\t"); break;
 			case FORWARD: printf("F\t"); break;
 		}
 		printf("%d\n", edgeTab[i].dist);
 	}
+
+	// Printing the longest path's vertices and their edge distances.
 	printf("Vertex %d has longest distance of %d\n", topological[n-1], longest[topological[n-1]]);
 	i = topological[n-1];
 	while (successor[i] != -1) {
@@ -66,6 +68,7 @@ void outputTable() {
 	printf("%d\n", i);
 }
 
+// Function for sorting edges.
 int tailThenHead(const void* xin, const void* yin) {
 	int result;
 	edgeType *x, *y;
@@ -80,6 +83,7 @@ int tailThenHead(const void* xin, const void* yin) {
 	}
 }
 
+// Storing all data from input file, most importantly, the edges' tails, heads, and distances.
 void read_input_file() {
 	int a, b, c, i, j;
 	edgeType work;
@@ -136,16 +140,23 @@ void read_input_file() {
 	printf("\n");
 }
 
+// Finding the longest path.
+//		u = black vertex and the next value in the 'topological' array.
 void longestPath(int u) {
 	int i;
+	// Navigating edge table for all vertices pointing to u.
 	for (i = 0; i < e; i++) {
 		if (edgeTab[i].head == u) {
+			// If the paths of vertices pointing to u and u plus the edge between the two are equal...
 			if (longest[edgeTab[i].tail] <= (longest[u] + edgeTab[i].dist)) {
+				// ... then the successor will be set to the smaller vertex.
 				if (longest[edgeTab[i].tail] == (longest[u] + edgeTab[i].dist)) {
 					if (u < successor[edgeTab[i].tail]) {
 						successor[edgeTab[i].tail] = u;
 					}
 				}
+				// Vertices' paths will be updated if smaller than u's path plus the edge's distance
+				// between the two.
 				else {
 					longest[edgeTab[i].tail] = edgeTab[i].dist + longest[u];
 					successor[edgeTab[i].tail] = u;
@@ -155,6 +166,8 @@ void longestPath(int u) {
 	}
 }
 
+// Performing DFS for discovery/finish times.
+//		u = the next largest white vertex
 void DFSvisit(int u) {
 	int i, v;
 	
@@ -191,6 +204,7 @@ void DFSvisit(int u) {
 int main () {
 	int u, i, j, k;
 
+	// Getting initial graph data.
 	read_input_file();
 	discovery = (int*)malloc(sizeof(int) * n);
 	finish = (int*)malloc(sizeof(int) * n);
@@ -212,7 +226,6 @@ int main () {
 		longest[u] = 0;
 	}
 
-	// Beginning the "clock".
 	time = 0;
 
 	// Looking for the next unprocessed vertex to run DFS from.
@@ -225,7 +238,6 @@ int main () {
 	// Printing end results.
 	outputTable();
 
-	// Exit routine.
 	free(edgeTab);
 	free(firstEdge);
 	free(discovery);
