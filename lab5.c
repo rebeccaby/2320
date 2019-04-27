@@ -18,7 +18,7 @@
 #define CROSS 2
 #define FORWARD 3
 
-int n, e, time, count = 0;
+int n, e, time;
 
 struct edge {
 	int tail;
@@ -30,7 +30,7 @@ struct edge {
 typedef struct edge edgeType;
 edgeType *edgeTab;
 int *firstEdge;
-int *discovery, *finish, *predecessor, *successor, *longest, *vertexStatus, *topological;
+int *discovery, *finish, *predecessor, *successor, *longest, *vertexStatus;
 
 void outputTable() {
 	int i;
@@ -43,8 +43,8 @@ void outputTable() {
 	printf("\nEdge\tTail\tHead\tType\tDist\n");
 	printf("----\t----\t----\t----\t----\n");
 	for (i = 0; i < e; i++) {
-  		printf("%d\t%d\t%d\t", i, edgeTab[i].tail, edgeTab[i].head);
-  		switch(edgeTab[i].type) {
+		printf("%d\t%d\t%d\t", i, edgeTab[i].tail, edgeTab[i].head);
+		switch(edgeTab[i].type) {
 			case TREE:    printf("T\t"); break;
 		//	case BACK:    printf("B\t"); break;		Shouldn't be any back edges.
 			case CROSS:   printf("C\t"); break;
@@ -61,8 +61,8 @@ int tailThenHead(const void* xin, const void* yin) {
 	y = (edgeType*) yin;
 	result = x->tail - y->tail;
 	if (result != 0) {
-  		return result;
-  	}
+		return result;
+	}
 	else {
 		return (x->head - y->head);
 	}
@@ -100,10 +100,10 @@ void read_input_file() {
 			;
 		} 
 		else {
-    		j++;
-    		edgeTab[j].tail = edgeTab[i].tail;
-    		edgeTab[j].head = edgeTab[i].head;
-    	}
+			j++;
+			edgeTab[j].tail = edgeTab[i].tail;
+			edgeTab[j].head = edgeTab[i].head;
+		}
 	}
 	e = j+1;
 
@@ -117,25 +117,32 @@ void read_input_file() {
 	for (i = 0; i < n; i++) {
 		firstEdge[i] = j;
 		for (; j < e && edgeTab[j].tail == i; j++) {
-    		printf("edgeTab[%d].tail = %d\n", j, edgeTab[j].tail);
-    	}
+			;
+		}
 	}
 	firstEdge[n] = e;
-	for (i = 0; i < e; i++) {
-		printf("edgeTab[%d]: tail = %d, head = %d, dist = %d\n", i, edgeTab[i].tail, edgeTab[i].head, edgeTab[i].dist);
-	}/*
-	for (i = 0; i < n; i++) {
-  		printf("vertex %d has %d adjacent vertices\n", i, firstEdge[i+1]-firstEdge[i]);
-	}*/
 	printf("\n");
 }
 
-void findPath(int u) {
+void longestPath(int u) {
 	int i, j;
 	for (i = 0; i < e; i++) {
-  		if (edgeTab[i].head == u) {
-  			u = edgeTab[i].tail;
-  		}
+		if (edgeTab[i].head == u) {
+			if (longest[edgeTab[i].tail] > (longest[u] + edgeTab[i].dist)) {
+				;
+			}
+			else {
+				if (longest[edgeTab[i].tail] == (longest[u] + edgeTab[i].dist)) {
+					if (u < successor[edgeTab[i].tail]) {
+						successor[edgeTab[i].tail] = u;
+					}
+				}
+				else {
+					longest[edgeTab[i].tail] = edgeTab[i].dist + longest[u];
+					successor[edgeTab[i].tail] = u;
+				}
+			}
+		}
 	}
 }
 
@@ -146,31 +153,30 @@ void DFSvisit(int u) {
 	discovery[u] = ++time;
 
 	for (i = firstEdge[u]; i < firstEdge[u+1]; i++) {
-  		v = edgeTab[i].head;
-  		
-  		if (vertexStatus[v] == WHITE) {
-    		edgeTab[i].type = TREE;
-    		predecessor[v] = u;
-    		DFSvisit(v);
+		v = edgeTab[i].head;
+		
+		if (vertexStatus[v] == WHITE) {
+			edgeTab[i].type = TREE;
+			predecessor[v] = u;
+			DFSvisit(v);
 		}
-  		else if (vertexStatus[v] == GRAY) {
-    		edgeTab[i].type = BACK;
-    		printf("graph is cyclic\n");
-    		exit(0);
-    	}
-    	else if (discovery[u] < discovery[v]) {
-    		edgeTab[i].type = FORWARD;
-    	}
-  		else {
-	    	edgeTab[i].type = CROSS;
-	    } 
+		else if (vertexStatus[v] == GRAY) {
+			edgeTab[i].type = BACK;
+			printf("graph is cyclic\n");
+			exit(0);
+		}
+		else if (discovery[u] < discovery[v]) {
+			edgeTab[i].type = FORWARD;
+		}
+		else {
+			edgeTab[i].type = CROSS;
+		} 
 	}
 	
 	vertexStatus[u] = BLACK;
 	finish[u] = ++time;
-	topological[count++] = u;
 	
-	findPath(u);
+	longestPath(u);
 }
 
 int main () {
@@ -183,7 +189,6 @@ int main () {
 	successor = (int*)malloc(sizeof(int) * n);
 	longest = (int*)malloc(sizeof(int) * n);
 	vertexStatus = (int*)malloc(sizeof(int) * n);
-	topological = (int*)malloc(sizeof(int) * n);
 	if (!discovery || !finish || !predecessor || !successor || !vertexStatus) {
 		printf("malloc failed\n");
 		exit(0);
@@ -203,15 +208,11 @@ int main () {
 	// Looking for the next unprocessed vertex to run DFS from.
 	for (u = 0; u < n; u++) {
 		if (vertexStatus[u] == WHITE) {
-    		DFSvisit(u);
-    	}
-    }
-    /*
-    for (u = 0; u < n; u++) {
-    	printf("%d\n", topological[u]);
-    }
-    */
-    // Printing end results.
+			DFSvisit(u);
+		}
+	}
+
+	// Printing end results.
 	outputTable();
 
 	// Exit routine.
@@ -223,7 +224,6 @@ int main () {
 	free(successor);
 	free(longest);
 	free(vertexStatus);
-	free(topological);
 	return 0;
 }
 
