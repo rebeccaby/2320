@@ -18,7 +18,7 @@
 #define CROSS 2
 #define FORWARD 3
 
-int n, e, time;
+int n, e, time, count = 0;
 
 struct edge {
 	int tail;
@@ -30,10 +30,10 @@ struct edge {
 typedef struct edge edgeType;
 edgeType *edgeTab;
 int *firstEdge;
-int *discovery, *finish, *predecessor, *successor, *longest, *vertexStatus;
+int *discovery, *finish, *predecessor, *successor, *longest, *vertexStatus, *topological;
 
 void outputTable() {
-	int i;
+	int i, j, length;
 	
 	printf("Vertex  Discovery  Finish  Predecessor  Successor  Longest\n");
 	printf("------  ---------  ------  -----------  ---------  -------\n");
@@ -52,6 +52,18 @@ void outputTable() {
 		}
 		printf("%d\n", edgeTab[i].dist);
 	}
+	printf("Vertex %d has longest distance of %d\n", topological[n-1], longest[topological[n-1]]);
+	i = topological[n-1];
+	while (successor[i] != -1) {
+		for (j = 0; j < e; j++) {
+			if (edgeTab[j].tail == i && edgeTab[j].head == successor[i]) {
+				length = edgeTab[j].dist;
+			}
+		}
+		printf("%d (%d) ", i, length);
+		i = successor[i];
+	}
+	printf("%d\n", i);
 }
 
 int tailThenHead(const void* xin, const void* yin) {
@@ -125,13 +137,10 @@ void read_input_file() {
 }
 
 void longestPath(int u) {
-	int i, j;
+	int i;
 	for (i = 0; i < e; i++) {
 		if (edgeTab[i].head == u) {
-			if (longest[edgeTab[i].tail] > (longest[u] + edgeTab[i].dist)) {
-				;
-			}
-			else {
+			if (longest[edgeTab[i].tail] <= (longest[u] + edgeTab[i].dist)) {
 				if (longest[edgeTab[i].tail] == (longest[u] + edgeTab[i].dist)) {
 					if (u < successor[edgeTab[i].tail]) {
 						successor[edgeTab[i].tail] = u;
@@ -175,7 +184,7 @@ void DFSvisit(int u) {
 	
 	vertexStatus[u] = BLACK;
 	finish[u] = ++time;
-	
+	topological[count++] = u;
 	longestPath(u);
 }
 
@@ -189,6 +198,7 @@ int main () {
 	successor = (int*)malloc(sizeof(int) * n);
 	longest = (int*)malloc(sizeof(int) * n);
 	vertexStatus = (int*)malloc(sizeof(int) * n);
+	topological = (int*)malloc(sizeof(int) * n);
 	if (!discovery || !finish || !predecessor || !successor || !vertexStatus) {
 		printf("malloc failed\n");
 		exit(0);
@@ -222,6 +232,7 @@ int main () {
 	free(finish);
 	free(predecessor);
 	free(successor);
+	free(topological);
 	free(longest);
 	free(vertexStatus);
 	return 0;
