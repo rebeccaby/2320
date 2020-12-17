@@ -3,7 +3,7 @@
 // Code baselined from Dr. Weems
 
 // Compilation:
-// gcc rbb7716_lab5.c
+// gcc <id>_lab5.c
 // ./a.out<file_name.txt
 
 #include <stdio.h>
