@@ -1,4 +1,4 @@
-// Rebecca Byun | 1000907716 | CSE 2320-004
+// Rebecca B.
 // Lab 5 - Depth-First Search
 // Code baselined from Dr. Weems
 
